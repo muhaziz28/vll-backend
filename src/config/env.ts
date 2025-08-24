@@ -5,8 +5,12 @@ loadEnv();
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.string().transform((v) => parseInt(v, 10)).pipe(z.number().int().positive()).default('3000' as unknown as number),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info')
+  PORT: z
+    .string()
+    .transform((v) => parseInt(v, 10))
+    .pipe(z.number().int().positive())
+    .default('3000'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 });
 
 const parsed = EnvSchema.safeParse(process.env);
@@ -20,5 +24,5 @@ if (!parsed.success) {
 export const env = {
   nodeEnv: parsed.data.NODE_ENV,
   port: typeof parsed.data.PORT === 'number' ? parsed.data.PORT : 3000,
-  logLevel: parsed.data.LOG_LEVEL
+  logLevel: parsed.data.LOG_LEVEL,
 };
