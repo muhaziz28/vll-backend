@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createApp } from '../src/app';
 import { prisma } from '../src/lib/prisma';
 
