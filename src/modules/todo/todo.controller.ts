@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import createError from 'http-errors';
-import { z } from 'zod';
 import { todoService } from './todo.service';
 import { TodoCreateSchema, TodoUpdateSchema } from './todo.types';
 
@@ -32,7 +31,7 @@ export async function updateTodo(req: Request, res: Response, next: NextFunction
   try {
     const updated = await todoService.update(id, parse.data);
     res.json(updated);
-  } catch (e) {
+  } catch (_e) {
     return next(createError(404, 'Todo not found'));
   }
 }
@@ -43,7 +42,7 @@ export async function deleteTodo(req: Request, res: Response, next: NextFunction
   try {
     await todoService.remove(id);
     res.status(204).send();
-  } catch (e) {
+  } catch (_e) {
     return next(createError(404, 'Todo not found'));
   }
 }

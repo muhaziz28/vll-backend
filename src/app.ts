@@ -1,8 +1,8 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import helmet from 'helmet';
-import { requestLogger } from '@app/middlewares/request-logger';
 import { errorHandler, notFound } from '@app/middlewares/error-handler';
+import { requestLogger } from '@app/middlewares/request-logger';
 import { registerV1Routes } from '@app/routes/v1';
 
 export const createApp = () => {
