@@ -1,4 +1,5 @@
 # express-ts-clean
+[![CI](https://github.com/muhaziz28/express-api/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/muhaziz28/express-api/actions/workflows/ci.yml)
 
 A clean, scalable Express + TypeScript API starter with sensible defaults.
 
