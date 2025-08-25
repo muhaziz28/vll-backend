@@ -1,23 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
-import createError from 'http-errors';
 import path from 'path';
+import { ERROR_TYPES, ResponseHelper } from '@app/lib/response-handler';
 import { bannerService } from './banner.service';
 import { BannerCreateSchema, BannerUpdateSchema } from './banner.types';
 
-export async function listBanners(_req: Request, res: Response) {
-  const items = await bannerService.list();
-  res.json({ items });
+export async function listBanners(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const items = await bannerService.list();
+
+    return ResponseHelper.success(res, items);
+  } catch (e) {
+    if (e instanceof Error) return ResponseHelper.forbidden(res, e.message);
+
+    return next(e);
+  }
 }
 
 export async function getBanner(req: Request, res: Response, next: NextFunction) {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return next(createError(400, 'Invalid banner ID'));
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return ResponseHelper.badRequest(res, 'Invalid banner ID');
 
-  const item = await bannerService.getById(id);
-  if (!item) return next(createError(404, 'Banner not found'));
+    const item = await bannerService.getById(id);
+    if (!item) return ResponseHelper.notFound(res, 'Banner not found');
 
-  res.json(item);
+    return ResponseHelper.success(res, item);
+  } catch (e) {
+    if (e instanceof Error) return ResponseHelper.forbidden(res, e.message);
+
+    return next(e);
+  }
 }
 
 export async function createBanner(req: Request, res: Response, next: NextFunction) {
@@ -47,29 +60,33 @@ export async function createBanner(req: Request, res: Response, next: NextFuncti
           fs.unlinkSync(filePath);
         }
       }
-      return next(createError(400, parse.error.message));
+
+      return ResponseHelper.badRequest(res, parse.error.message, ERROR_TYPES.BUSINESS);
     }
 
-    const created = await bannerService.create(parse.data);
-    res.status(201).json(created);
-  } catch (_e) {
+    const data = await bannerService.create(parse.data);
+    return ResponseHelper.created(res, data);
+  } catch (e) {
     if (req.file) {
       const filePath = path.join(process.cwd(), 'public', 'uploads', req.file.filename);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
     }
-    return next(createError(500, 'Failed to create banner'));
+
+    if (e instanceof Error) return ResponseHelper.forbidden(res, e.message);
+
+    return next(e);
   }
 }
 
 export async function updateBanner(req: Request, res: Response, next: NextFunction) {
   try {
     const id = parseInt(req.params.id);
-    if (isNaN(id)) return next(createError(400, 'Invalid banner ID'));
+    if (isNaN(id)) return ResponseHelper.badRequest(res, 'Invalid banner ID');
 
     const existingBanner = await bannerService.getById(id);
-    if (!existingBanner) return next(createError(404, 'Banner not found'));
+    if (!existingBanner) return ResponseHelper.notFound(res, 'Banner not found');
 
     const updateData = { ...req.body };
 
@@ -96,7 +113,8 @@ export async function updateBanner(req: Request, res: Response, next: NextFuncti
           fs.unlinkSync(filePath);
         }
       }
-      return next(createError(400, parse.error.message));
+
+      return ResponseHelper.badRequest(res, parse.error.message);
     }
 
     const updated = await bannerService.update(id, parse.data);
@@ -108,25 +126,28 @@ export async function updateBanner(req: Request, res: Response, next: NextFuncti
       }
     }
 
-    res.json(updated);
-  } catch (_e) {
+    return ResponseHelper.success(res, updated);
+  } catch (e) {
     if (req.file) {
       const filePath = path.join(process.cwd(), 'public', 'uploads', req.file.filename);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
     }
-    return next(createError(500, 'Failed to update banner'));
+
+    if (e instanceof Error) return ResponseHelper.forbidden(res, e.message);
+
+    return next(e);
   }
 }
 
 export async function deleteBanner(req: Request, res: Response, next: NextFunction) {
   try {
     const id = parseInt(req.params.id);
-    if (isNaN(id)) return next(createError(400, 'Invalid banner ID'));
+    if (isNaN(id)) return ResponseHelper.badRequest(res, 'Invalid banner ID');
 
     const banner = await bannerService.getById(id);
-    if (!banner) return next(createError(404, 'Banner not found'));
+    if (!banner) return ResponseHelper.notFound(res, 'Banner not found');
 
     if (banner.imagePath) {
       const filePath = path.join(process.cwd(), 'public', banner.imagePath);
@@ -136,13 +157,16 @@ export async function deleteBanner(req: Request, res: Response, next: NextFuncti
     }
 
     await bannerService.remove(id);
-    res.status(204).send();
-  } catch (_e) {
-    return next(createError(404, 'Banner not found'));
+
+    return ResponseHelper.success(res, null, 'Banner deleted succesfully');
+  } catch (e) {
+    if (e instanceof Error) return ResponseHelper.forbidden(res, e.message);
+
+    return next(e);
   }
 }
 
 export async function getActiveBanners(_req: Request, res: Response) {
   const items = await bannerService.getActiveBanners();
-  res.json({ items });
+  return ResponseHelper.success(res, items);
 }
