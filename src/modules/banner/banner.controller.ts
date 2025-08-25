@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
 import createError from 'http-errors';
+import path from 'path';
 import { bannerService } from './banner.service';
 import { BannerCreateSchema, BannerUpdateSchema } from './banner.types';
-import fs from 'fs';
-import path from 'path';
 
 export async function listBanners(_req: Request, res: Response) {
   const items = await bannerService.list();
@@ -13,7 +13,7 @@ export async function listBanners(_req: Request, res: Response) {
 export async function getBanner(req: Request, res: Response, next: NextFunction) {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return next(createError(400, 'Invalid banner ID'));
-  
+
   const item = await bannerService.getById(id);
   if (!item) return next(createError(404, 'Banner not found'));
   res.json(item);
@@ -23,10 +23,10 @@ export async function createBanner(req: Request, res: Response, next: NextFuncti
   try {
     const parse = BannerCreateSchema.safeParse(req.body);
     if (!parse.success) return next(createError(400, parse.error.message));
-    
+
     const created = await bannerService.create(parse.data);
     res.status(201).json(created);
-  } catch (error) {
+  } catch (_e) {
     return next(createError(500, 'Failed to create banner'));
   }
 }
@@ -35,13 +35,13 @@ export async function updateBanner(req: Request, res: Response, next: NextFuncti
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return next(createError(400, 'Invalid banner ID'));
-    
+
     const parse = BannerUpdateSchema.safeParse(req.body);
     if (!parse.success) return next(createError(400, parse.error.message));
-    
+
     const updated = await bannerService.update(id, parse.data);
     res.json(updated);
-  } catch (error) {
+  } catch (_e) {
     return next(createError(404, 'Banner not found'));
   }
 }
@@ -50,11 +50,11 @@ export async function deleteBanner(req: Request, res: Response, next: NextFuncti
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return next(createError(400, 'Invalid banner ID'));
-    
+
     // Get banner info before deletion to remove file
     const banner = await bannerService.getById(id);
     if (!banner) return next(createError(404, 'Banner not found'));
-    
+
     // Delete the file if it exists
     if (banner.imagePath) {
       const filePath = path.join(process.cwd(), 'public', banner.imagePath);
@@ -62,10 +62,10 @@ export async function deleteBanner(req: Request, res: Response, next: NextFuncti
         fs.unlinkSync(filePath);
       }
     }
-    
+
     await bannerService.remove(id);
     res.status(204).send();
-  } catch (error) {
+  } catch (_e) {
     return next(createError(404, 'Banner not found'));
   }
 }
@@ -91,7 +91,7 @@ export async function uploadBannerImage(req: Request, res: Response, next: NextF
       imageSize: fileSize,
       imagePath: filePath,
     });
-  } catch (error) {
+  } catch (_e) {
     return next(createError(500, 'Failed to upload file'));
   }
 }
