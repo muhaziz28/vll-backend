@@ -4,6 +4,7 @@ import { env } from '@app/config/env';
 export type JwtPayload = {
   sub: string;
   email?: string;
+  role: string;
 };
 
 export function signAccessToken(payload: JwtPayload): string {

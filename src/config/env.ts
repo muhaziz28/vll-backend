@@ -8,6 +8,7 @@ const EnvSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   CORS_ORIGINS: z.string().optional(),
+  HOST: z.string(),
   RATE_LIMIT_WINDOW_MS: z.coerce
     .number()
     .int()
@@ -42,6 +43,7 @@ export const env = {
   nodeEnv: parsed.data.NODE_ENV,
   port: parsed.data.PORT,
   logLevel: parsed.data.LOG_LEVEL,
+  host: parsed.data.HOST,
   corsOrigins: parsed.data.CORS_ORIGINS
     ? parsed.data.CORS_ORIGINS.split(',')
         .map((s) => s.trim())

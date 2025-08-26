@@ -3,8 +3,8 @@ import { BannerCreateInput, BannerUpdateInput } from './banner.types';
 
 class BannerService {
   async list() {
-    return prisma.banner.findMany({ 
-      orderBy: { createdAt: 'desc' } 
+    return prisma.banner.findMany({
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -17,9 +17,9 @@ class BannerService {
   }
 
   async update(id: number, input: BannerUpdateInput) {
-    return prisma.banner.update({ 
-      where: { id }, 
-      data: { ...input, updatedAt: new Date() } 
+    return prisma.banner.update({
+      where: { id },
+      data: { ...input, updatedAt: new Date() },
     });
   }
 
@@ -28,9 +28,9 @@ class BannerService {
   }
 
   async getActiveBanners() {
-    return prisma.banner.findMany({ 
+    return prisma.banner.findMany({
       where: { isActive: true },
-      orderBy: { createdAt: 'desc' } 
+      orderBy: { createdAt: 'desc' },
     });
   }
 }
