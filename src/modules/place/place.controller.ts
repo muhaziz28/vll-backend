@@ -5,7 +5,7 @@ import { Place } from '@app/generated/prisma';
 import { ResponseHelper } from '@app/lib/response-handler';
 import { stringToBoolean } from '@app/lib/string-to-boolean';
 import { formatValidationError } from '@app/lib/validation-error';
-import { placeDTOMapper, placesDTOMapper } from './place.mapper';
+import { placesDTOMapper } from './place.mapper';
 import { placeService } from './place.service';
 import { PlaceCreateSchema, PlaceUpdateSchema } from './place.type';
 
@@ -91,7 +91,7 @@ export async function createPlace(req: Request, res: Response, next: NextFunctio
     }
 
     const data = await placeService.create(parsed.data);
-    return ResponseHelper.created(res, placeDTOMapper(data));
+    return ResponseHelper.created(res, data);
   } catch (e) {
     if (req.file) {
       const filePath = path.join(process.cwd(), 'public', 'uploads', req.file.filename);
@@ -154,7 +154,7 @@ export async function updatePlace(req: Request, res: Response, next: NextFunctio
         fs.unlinkSync(oldFilePath);
       }
     }
-    return ResponseHelper.success(res, placeDTOMapper(updated));
+    return ResponseHelper.success(res, updated);
   } catch (e) {
     if (req.file) {
       const filePath = path.join(process.cwd(), 'public', 'uploads', req.file.filename);
@@ -178,7 +178,7 @@ export async function getPlace(req: Request, res: Response, next: NextFunction) 
     if (!place) {
       return ResponseHelper.notFound(res);
     }
-    return ResponseHelper.success(res, placeDTOMapper(place));
+    return ResponseHelper.success(res, place);
   } catch (e) {
     if (e instanceof Error) return ResponseHelper.forbidden(res, e.message);
     return next(e);

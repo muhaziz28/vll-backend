@@ -19,21 +19,58 @@ class PlaceService {
       where.OR = [{ title: { contains: search } }, { address: { contains: search } }];
     }
 
-    if (isActive) {
-      where.OR = [{ isActive }];
+    if (typeof isActive === 'boolean') {
+      where.isActive = isActive;
     }
 
     const [items, total] = await Promise.all([
       prisma.place.findMany({
         where,
+        include: {
+          placeReview: {
+            where: {
+              isActive: true,
+              rating: {
+                gte: 0,
+                lte: 5,
+              },
+            },
+            select: {
+              rating: true,
+            },
+          },
+        },
         skip,
         take: validLimit,
       }),
       prisma.place.count({ where }),
     ]);
 
+    const transformedItems = items.map((place) => {
+      const reviews = place.placeReview;
+      const totalReviews = reviews.length;
+
+      const validRatings = reviews
+        .map((review) => review.rating)
+        .filter((rating) => rating !== null && rating >= 0 && rating <= 5);
+
+      const totalRating = validRatings.reduce((sum, rating) => sum + rating, 0);
+      const averageRating =
+        validRatings.length > 0 ? Math.round((totalRating / validRatings.length) * 10) / 10 : 0;
+
+      return {
+        ...place,
+        reviewSummary: {
+          totalReviews,
+          totalValidRatings: validRatings.length,
+          totalRating,
+          averageRating: Math.min(Math.max(averageRating, 0), 5),
+        },
+      };
+    });
+
     return {
-      items,
+      items: transformedItems,
       total,
       page: validPage,
       limit: validLimit,

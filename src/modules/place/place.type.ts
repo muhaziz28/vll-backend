@@ -1,5 +1,30 @@
 import { z } from 'zod';
 
+export interface IPlace {
+  id: number;
+  title: string;
+  description_id: string;
+  description_mi: string;
+  description_en: string;
+  address: string;
+  imageFile: string;
+  imageSize: number;
+  imagePath: string;
+  latitude: number;
+  longitude: number;
+  reviewSummary: {
+    totalReviews: number;
+    totalValidRatings: number;
+    totalRating: number;
+    averageRating: number;
+  };
+  city: string;
+  province: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export const PlaceCreateSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description_id: z.string().min(1, 'Decription ID is required'),

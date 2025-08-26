@@ -4,6 +4,7 @@ import { bannerRouter } from '@app/modules/banner/banner.route';
 import { healthRouter } from '@app/modules/health/health.route';
 import { placesRouter } from '@app/modules/place/place.route';
 import { placeImagesRouter } from '@app/modules/place-image/place-image.route';
+import { placeReviewRouter } from '@app/modules/place-review/place-review.route';
 import { todoRouter } from '@app/modules/todo/todo.route';
 
 export const registerV1Routes = (app: Express) => {
@@ -15,6 +16,7 @@ export const registerV1Routes = (app: Express) => {
   router.use('/banners', bannerRouter);
   router.use('/places', placesRouter);
   router.use('/place-images', placeImagesRouter);
+  router.use('/place-reviews', placeReviewRouter);
 
   app.use('/api/v1', router);
 };
