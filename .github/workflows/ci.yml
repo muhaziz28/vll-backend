@@ -32,10 +32,10 @@ jobs:
         env:
           DATABASE_URL: 'file:./prisma/dev.db'
 
-      - name: Apply database migrations
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: 'file:./prisma/dev.db'
+      # - name: Apply database migrations
+      #   run: npx prisma migrate deploy
+      #   env:
+      #     DATABASE_URL: 'file:./prisma/dev.db'
 
       - name: Lint
         run: npm run lint
