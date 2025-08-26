@@ -55,7 +55,6 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
   try {
     const result = await authService.refresh(parsed.data.refreshToken);
-    res.json(result);
 
     return ResponseHelper.success(res, result, 'Token refresh successfully');
   } catch (e) {

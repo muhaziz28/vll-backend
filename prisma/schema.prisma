@@ -14,6 +14,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  user
+  admin
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -22,9 +27,11 @@ model User {
   name         String?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+  role         Role     @default(user)
 
   // Relations
   refreshTokens RefreshToken[]
+  placeReview   PlaceReview[]
 
   @@map("user")
 }
@@ -52,15 +59,92 @@ model Todo {
 }
 
 model Banner {
-  id          Int     @id @default(autoincrement())
-  bannerTitle String? @map("banner_title")
-  imageFile   String  @map("image_file")
-  imageSize   Int     @map("image_size")
-  imagePath   String  @map("image_path")
-  isActive    Boolean @default(true) @map("is_active")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at")
+  id          Int      @id @default(autoincrement())
+  bannerTitle String?  @map("banner_title")
+  imageFile   String   @map("image_file")
+  imageSize   Int      @map("image_size")
+  imagePath   String   @map("image_path")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
 
   @@map("banner")
+}
+
+model Place {
+  id             Int           @id @default(autoincrement())
+  title          String
+  description_id String        @db.LongText
+  description_mi String        @db.LongText
+  description_en String        @db.LongText
+  address        String
+  imageFile      String        @map("image_file")
+  imageSize      Int           @map("image_size")
+  imagePath      String        @map("image_path")
+  latitude       Float
+  longitude      Float
+  city           String
+  province       String
+  isActive       Boolean       @default(true) @map("is_active")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @default(now()) @map("updated_at")
+  placeImage     PlaceImage[]
+  placeReview    PlaceReview[]
+
+  @@index([title])
+  @@index([city])
+  @@index([province])
+  @@index([city, province])
+  @@index([latitude, longitude], name: "location_idx")
+  @@map("place")
+}
+
+model PlaceImage {
+  id        Int      @id @default(autoincrement())
+  placeId   Int      @map("place_id")
+  imageFile String   @map("image_file")
+  imageSize Int      @map("image_size")
+  imagePath String   @map("image_path")
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.DateTime(0)
+  place     Place    @relation(fields: [placeId], references: [id])
+
+  @@index([placeId])
+  @@map("place_image")
+}
+
+model PlaceReview {
+  id                    Int                     @id @default(autoincrement())
+  placeId               Int                     @map("place_id")
+  userId                String                  @map("user_id") @db.Char(36)
+  rating                Int
+  comment               String?                 @db.LongText
+  isActive              Boolean                 @default(true) @map("is_active")
+  createdAt             DateTime                @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt             DateTime                @default(now()) @map("updated_at") @db.DateTime(0)
+  place                 Place                   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placeReviewAttachment PlaceReviewAttachment[]
+
+  @@unique([placeId, userId])
+  @@index([placeId])
+  @@index([userId])
+  @@index([rating])
+  @@index([placeId, rating])
+  @@index([createdAt])
+  @@map("place_reviews")
+}
+
+model PlaceReviewAttachment {
+  id             Int         @id @default(autoincrement())
+  placeReviewId  Int         @map("place_review_id")
+  attachmentFile String      @map("attachment_file")
+  attachmentSize Int         @map("attachment_size")
+  attachmentPath String      @map("attachment_path")
+  createdAt      DateTime    @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt      DateTime    @default(now()) @map("updated_at") @db.DateTime(0)
+  placeReview    PlaceReview @relation(fields: [placeReviewId], references: [id])
+
+  @@index([placeReviewId])
+  @@map("place_review_attachment")
 }

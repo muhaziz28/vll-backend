@@ -22,7 +22,7 @@ export class AuthService {
 
     const passwordHash = await hashPassword(password);
     const user = await prisma.user.create({ data: { email, passwordHash, name } });
-    const accessToken = signAccessToken({ sub: user.id, email: user.email });
+    const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
     const refresh = await this.issueRefreshToken(user.id);
 
     return { user, accessToken, refreshToken: refresh.token, expiresAt: refresh.expiresAt };
@@ -37,7 +37,7 @@ export class AuthService {
     const ok = await comparePassword(password, user.passwordHash);
     if (!ok) throw new Error('Invalid credentials');
 
-    const accessToken = signAccessToken({ sub: user.id, email: user.email });
+    const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
     const refresh = await this.issueRefreshToken(user.id);
 
     return { user, accessToken, refreshToken: refresh.token, expiresAt: refresh.expiresAt };
@@ -56,7 +56,7 @@ export class AuthService {
     // rotate
     await prisma.refreshToken.delete({ where: { id: token.id } });
     const newRefresh = await this.issueRefreshToken(user.id);
-    const accessToken = signAccessToken({ sub: user.id, email: user.email });
+    const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
     return { user, accessToken, refreshToken: newRefresh.token, expiresAt: newRefresh.expiresAt };
   }
 
@@ -77,7 +77,7 @@ export class AuthService {
       user = await prisma.user.update({ where: { id: user.id }, data: { googleId } });
     }
 
-    const accessToken = signAccessToken({ sub: user.id, email: user.email });
+    const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
     const refresh = await this.issueRefreshToken(user.id);
     return { user, accessToken, refreshToken: refresh.token, expiresAt: refresh.expiresAt };
   }

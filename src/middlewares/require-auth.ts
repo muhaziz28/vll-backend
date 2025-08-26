@@ -18,3 +18,24 @@ export function requireAuth(req: AuthenticatedRequest, _res: Response, next: Nex
     return next(createError(401, 'Invalid or expired token'));
   }
 }
+
+export function requireAdminAuth(req: AuthenticatedRequest, _res: Response, next: NextFunction) {
+  const auth = req.headers.authorization || '';
+  const [scheme, token] = auth.split(' ');
+  if (scheme !== 'Bearer' || !token) {
+    return next(createError(401, 'Missing or invalid authorization header'));
+  }
+  try {
+    const payload = verifyAccessToken(token);
+
+    if (payload.role !== 'admin') {
+      return next(createError(403, 'Forbidden: Admin only'));
+    }
+
+    req.user = { userId: payload.sub, email: payload.email };
+
+    return next();
+  } catch (_e) {
+    return next(createError(401, 'Invalid or expired token'));
+  }
+}
