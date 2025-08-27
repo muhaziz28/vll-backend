@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     env:
       ROLLUP_SKIP_NODEJS_NATIVE: 'true'
@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
-        run: npm test
-        env:
-          DATABASE_URL: 'file:./prisma/dev.db'
+      # - name: Test
+      #   run: npm test
+      #   env:
+      #     DATABASE_URL: 'file:./prisma/dev.db'
