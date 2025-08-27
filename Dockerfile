@@ -30,21 +30,35 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Copy prisma schema
-COPY prisma ./prisma/
+# Copy prisma schema (jika ada)
+COPY prisma ./prisma/ 2>/dev/null || echo "No prisma directory found"
 
-# Generate Prisma client
-RUN npm run prisma:generate
+# Generate Prisma client (jika ada)
+RUN if [ -f "prisma/schema.prisma" ]; then npm run prisma:generate; fi
+
+# Debug: List files sebelum build
+RUN echo "=== Files before build ===" && ls -la
 
 # Build the application
 RUN npm run build
+
+# Debug: List files setelah build
+RUN echo "=== Files after build ===" && ls -la
+
+# Debug: Check build output directory
+RUN echo "=== Build output directory ===" && \
+    if [ -d "dist" ]; then ls -la dist/; \
+    elif [ -d "build" ]; then ls -la build/; \
+    elif [ -d ".next" ]; then ls -la .next/; \
+    else echo "No common build directory found"; fi
 
 # Production stage
 FROM node:20-alpine AS production
 
 RUN apk add --no-cache \
     libc6-compat \
-    dumb-init
+    dumb-init \
+    wget
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
@@ -56,10 +70,15 @@ WORKDIR /app
 COPY --from=base --chown=appuser:nodejs /app/node_modules ./node_modules
 COPY --from=base --chown=appuser:nodejs /app/package*.json ./
 
-# Copy built application
+# Copy built application - sesuaikan dengan output build Anda
 COPY --from=builder --chown=appuser:nodejs /app/dist ./dist
-COPY --from=builder --chown=appuser:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=appuser:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+# Uncomment salah satu di bawah ini jika build output berbeda:
+# COPY --from=builder --chown=appuser:nodejs /app/build ./build
+# COPY --from=builder --chown=appuser:nodejs /app/.next ./.next
+
+# Copy prisma files jika ada
+COPY --from=builder --chown=appuser:nodejs /app/prisma ./prisma 2>/dev/null || echo "No prisma to copy"
+COPY --from=builder --chown=appuser:nodejs /app/node_modules/.prisma ./node_modules/.prisma 2>/dev/null || echo "No .prisma to copy"
 
 RUN chown -R appuser:nodejs /app
 
