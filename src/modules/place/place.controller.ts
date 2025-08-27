@@ -93,6 +93,7 @@ export async function createPlace(req: Request, res: Response, next: NextFunctio
       placeData.imagePath = `uploads/${req.file.filename}`;
     }
 
+    console.log(placeData);
     const parsed = PlaceCreateSchema.safeParse(placeData);
     if (!parsed.success) {
       if (req.file) {
