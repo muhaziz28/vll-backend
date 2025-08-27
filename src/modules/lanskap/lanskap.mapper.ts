@@ -1,4 +1,4 @@
-import { LanskapLinguistik } from '@app/generated/prisma';
+import { LanskapLinguistik } from '@prisma/client';
 import { formatFileSize } from '@app/lib/format-file-size';
 import { imageUrl } from '@app/lib/image-url';
 

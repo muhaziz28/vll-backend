@@ -1,7 +1,7 @@
+import { Banner } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { Banner } from '@app/generated/prisma';
 import { ResponseHelper } from '@app/lib/response-handler';
 import { stringToBoolean } from '@app/lib/string-to-boolean';
 import { formatValidationError } from '@app/lib/validation-error';

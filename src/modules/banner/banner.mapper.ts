@@ -1,4 +1,4 @@
-import { Banner } from '@app/generated/prisma';
+import { Banner } from '@prisma/client';
 import { formatFileSize } from '@app/lib/format-file-size';
 import { imageUrl } from '@app/lib/image-url';
 

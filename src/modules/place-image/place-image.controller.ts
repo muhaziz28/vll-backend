@@ -1,7 +1,7 @@
+import { PlaceImage } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { PlaceImage } from '@app/generated/prisma';
 import { ResponseHelper } from '@app/lib/response-handler';
 import { formatValidationError } from '@app/lib/validation-error';
 import { placeImageDTOMapper, placeImagesDTOMapper } from './place-image.mapper';

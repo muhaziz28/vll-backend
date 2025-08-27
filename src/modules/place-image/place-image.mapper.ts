@@ -1,4 +1,4 @@
-import { PlaceImage } from '@app/generated/prisma';
+import { PlaceImage } from '@prisma/client';
 import { formatFileSize } from '@app/lib/format-file-size';
 import { imageUrl } from '@app/lib/image-url';
 

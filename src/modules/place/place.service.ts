@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Prisma } from '@app/generated/prisma';
+import { Prisma } from '@prisma/client';
 import { PaginatedResult, PaginationParams } from '@app/lib/paginate';
 import { prisma } from '@app/lib/prisma';
 import { PlaceCreateInput, PlaceUpdateInput } from './place.type';
