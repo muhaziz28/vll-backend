@@ -159,3 +159,14 @@ model PlaceReviewAttachment {
   @@index([placeReviewId])
   @@map("place_review_attachment")
 }
+
+model LanskapLinguistik {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  file        String
+  fileSize    Int     @map("file_size")
+  filePath    String  @map("file_path")
+
+  @@map("lanskap_linguistik")
+}
