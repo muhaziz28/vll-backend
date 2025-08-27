@@ -31,10 +31,10 @@ RUN npm ci
 COPY . .
 
 # Copy prisma schema (jika ada)
-COPY prisma ./prisma/ 2>/dev/null || echo "No prisma directory found"
+COPY prisma ./prisma/
 
-# Generate Prisma client (jika ada)
-RUN if [ -f "prisma/schema.prisma" ]; then npm run prisma:generate; fi
+# Generate Prisma client
+RUN npm run prisma:generate
 
 # Debug: List files sebelum build
 RUN echo "=== Files before build ===" && ls -la
@@ -76,9 +76,9 @@ COPY --from=builder --chown=appuser:nodejs /app/dist ./dist
 # COPY --from=builder --chown=appuser:nodejs /app/build ./build
 # COPY --from=builder --chown=appuser:nodejs /app/.next ./.next
 
-# Copy prisma files jika ada
-COPY --from=builder --chown=appuser:nodejs /app/prisma ./prisma 2>/dev/null || echo "No prisma to copy"
-COPY --from=builder --chown=appuser:nodejs /app/node_modules/.prisma ./node_modules/.prisma 2>/dev/null || echo "No .prisma to copy"
+# Copy prisma files
+COPY --from=builder --chown=appuser:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=appuser:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 
 RUN chown -R appuser:nodejs /app
 
