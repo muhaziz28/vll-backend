@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { Place } from '@app/generated/prisma';
 import { ResponseHelper } from '@app/lib/response-handler';
 import { stringToBoolean } from '@app/lib/string-to-boolean';
 import { formatValidationError } from '@app/lib/validation-error';
 import { placesDTOMapper } from './place.mapper';
 import { placeService } from './place.service';
 import { PlaceCreateSchema, PlaceUpdateSchema } from './place.type';
+import { cityService } from '../city/city.service';
 
 export async function listPlaces(req: Request, res: Response, next: NextFunction) {
   try {
@@ -15,6 +15,7 @@ export async function listPlaces(req: Request, res: Response, next: NextFunction
       page = 1,
       limit = 10,
       search,
+      cityId,
       sortBy = 'createdAt',
       sortOrder = 'desc',
       isActive = 'true',
@@ -31,11 +32,17 @@ export async function listPlaces(req: Request, res: Response, next: NextFunction
       return ResponseHelper.badRequest(res, 'Invalid limit (1-100)');
     }
 
+    if (cityId === undefined || cityId === '') {
+      const firstCity = await cityService.getFirstCity();
+      if (!firstCity) return ResponseHelper.notFound(res, 'City not found');
+    }
+
     const result = await placeService.list({
       page: pageNum,
       limit: limitNum,
       search: search as string,
       sortBy: sortBy as string,
+      cityId: parseInt(cityId as string),
       isActive: stringToBoolean(isActive as string),
       sortOrder: sortOrder as 'asc' | 'desc',
     });
@@ -58,11 +65,19 @@ export async function listPlaces(req: Request, res: Response, next: NextFunction
 
 export async function createPlace(req: Request, res: Response, next: NextFunction) {
   try {
-    const placeData: Place = { ...req.body };
+    const placeData = { ...req.body };
+
+    const parseCityId = parseInt(placeData.cityId);
+    if (isNaN(parseCityId)) {
+      return ResponseHelper.forbidden(res, 'Invalid city ID');
+    } else {
+      const cityExist = await cityService.getCityById(parseCityId);
+      if (!cityExist) return ResponseHelper.notFound(res, 'City not foud');
+      placeData.cityId = parseCityId;
+    }
 
     if (placeData.isActive !== undefined) {
-      placeData.isActive =
-        placeData.isActive === stringToBoolean('true') || placeData.isActive === true;
+      placeData.isActive = stringToBoolean('true');
     }
 
     if (placeData.latitude && !isNaN(Number(placeData.latitude))) {
@@ -114,11 +129,19 @@ export async function updatePlace(req: Request, res: Response, next: NextFunctio
     const existingPlace = await placeService.getById(id);
     if (!existingPlace) return ResponseHelper.notFound(res, 'Place not found');
 
-    const updateData: Place = { ...req.body };
+    const updateData = { ...req.body };
+
+    const parseCityId = parseInt(updateData.cityId);
+    if (isNaN(parseCityId)) {
+      return ResponseHelper.forbidden(res, 'Invalid city ID');
+    } else {
+      const cityExist = await cityService.getCityById(parseCityId);
+      if (!cityExist) return ResponseHelper.notFound(res, 'City not foud');
+      updateData.cityId = parseCityId;
+    }
 
     if (updateData.isActive !== undefined) {
-      updateData.isActive =
-        updateData.isActive === stringToBoolean('true') || updateData.isActive === true;
+      updateData.isActive = stringToBoolean('true');
     }
 
     if (updateData.latitude && !isNaN(Number(updateData.latitude))) {

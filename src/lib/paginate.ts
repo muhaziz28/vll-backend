@@ -10,6 +10,7 @@ export interface PaginationParams {
   limit?: number;
   search?: string;
   sortBy?: string;
+  cityId?: number;
   isActive?: boolean;
   sortOrder?: 'asc' | 'desc';
 }

@@ -12,13 +12,19 @@ export interface IPlace {
   imagePath: string;
   latitude: number;
   longitude: number;
+  city: {
+    id: number;
+    name: string;
+    latitude: number;
+    longitude: number;
+  };
   reviewSummary: {
     totalReviews: number;
     totalValidRatings: number;
     totalRating: number;
     averageRating: number;
   };
-  city: string;
+  cityId: number;
   province: string;
   isActive: boolean;
   createdAt: Date;
@@ -36,7 +42,7 @@ export const PlaceCreateSchema = z.object({
   imagePath: z.string().min(1, 'Image path is required'),
   latitude: z.number().min(1, 'Latitude is required'),
   longitude: z.number().min(1, 'Longitude is required'),
-  city: z.string().min(1, 'City is required'),
+  cityId: z.number().min(1, 'City is required'),
   province: z.string().min(1, 'Province is required'),
   isActive: z.boolean().default(true),
 });
@@ -52,7 +58,7 @@ export const PlaceUpdateSchema = z.object({
   imagePath: z.string().min(1, 'Image path is required').optional(),
   latitude: z.number().min(1, 'Latitude is required').optional(),
   longitude: z.number().min(1, 'Longitude is required').optional(),
-  city: z.string().min(1, 'City is required').optional(),
+  cityId: z.number().min(1, 'City is required').optional(),
   province: z.string().min(1, 'Province is required').optional(),
   isActive: z.boolean().optional(),
 });

@@ -14,6 +14,12 @@ export const placeDTOMapper = (place: IPlace) => {
     description_mi: place.description_mi,
     description_en: place.description_en,
     address: place.address,
+    city: {
+      id: place.city.id,
+      name: place.city.name,
+      latitude: place.city.latitude,
+      longitude: place.city.longitude,
+    },
     reviewSummary: {
       totalReviews: place.reviewSummary.totalReviews,
       totalValidRatings: place.reviewSummary.totalValidRatings,
@@ -24,7 +30,7 @@ export const placeDTOMapper = (place: IPlace) => {
     imagePath: imageUrl(place.imagePath),
     latitude: place.latitude,
     longitude: place.longitude,
-    city: place.city,
+    cityId: place.cityId,
     province: place.province,
     isActive: place.isActive,
     createdAt: place.createdAt,

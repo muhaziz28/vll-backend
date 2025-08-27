@@ -6,7 +6,7 @@ import { prisma } from '@app/lib/prisma';
 import { PlaceCreateInput, PlaceUpdateInput } from './place.type';
 
 class PlaceService {
-  async list({ page = 1, limit = 10, search, isActive }: PaginationParams = {}): Promise<
+  async list({ page = 1, limit = 10, search, isActive, cityId }: PaginationParams = {}): Promise<
     PaginatedResult<any>
   > {
     const validPage = Math.max(1, page);
@@ -21,6 +21,10 @@ class PlaceService {
 
     if (typeof isActive === 'boolean') {
       where.isActive = isActive;
+    }
+
+    if (cityId) {
+      where.cityId = cityId;
     }
 
     const [items, total] = await Promise.all([
@@ -39,6 +43,7 @@ class PlaceService {
               rating: true,
             },
           },
+          city: true,
         },
         skip,
         take: validLimit,
@@ -82,7 +87,7 @@ class PlaceService {
   }
 
   async create(input: PlaceCreateInput) {
-    return prisma.place.create({ data: input });
+    return prisma.place.create({ data: input, include: { city: true } });
   }
 
   async update(id: number, input: PlaceUpdateInput) {
@@ -93,6 +98,9 @@ class PlaceService {
       data: {
         ...input,
         updatedAt: new Date(),
+      },
+      include: {
+        city: true,
       },
     });
   }
